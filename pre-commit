@@ -1,0 +1,27 @@
+#!/bin/sh
+
+work_dir=`pwd`
+
+# 戻り値のチェック
+# check_rt_code() {
+# 
+# }
+
+# go fmt対象のディレクトリを抽出  
+# git diffで表示されたファイルのディレクトリを取ってくる
+target_file=$(git diff --cached --name-only --diff-filter=AMRC | grep -E ".go$")
+if [ -n "${target_file}" ]; then
+    target_dir=$(echo ${target_file} | xargs dirname | sort -u)
+else
+    echo "No change in Go file."
+    exit 0
+fi
+
+# go fmt実行
+for dir in ${target_file}
+do
+  cd ${work_dir}/${dir} || exit1
+  go fmt
+done
+cd ${work_dir}
+git add .
